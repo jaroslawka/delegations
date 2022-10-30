@@ -6,12 +6,16 @@ use App\Containers\DelegationDaysContainer;
 use App\Models\Delegation;
 use App\ValueObjects\DelegationDayValueObject;
 use DateTime;
+use App\Services\Modules\DelegationAmountDueCalculator;
 
 class DelegationService
 {
-    private $daysNoAllowance = [6, 7]; // allowance not paid for days of the week in ISO 8601 numeric representation
-    private $hoursForPayedDays = 8; // minimum number of day for payed allowance
-    private $daysAfterDoubledAmount = 7; // number of days after that allowance is doubled
+    private $amountDueCalculator;
+
+    public function __construct(DelegationAmountDueCalculator $amountDueCalculator)
+    {
+        $this->amountDueCalculator = $amountDueCalculator;
+    }
 
     protected function getDelegationDays(DateTime $start, DateTime $end): DelegationDaysContainer
     {
@@ -44,28 +48,12 @@ class DelegationService
     {
         $startDateTime = new DateTime($delegation->start);
         $endDateTime = new DateTime($delegation->end);
-        $baseAmount = $delegation->allowance->amount;
 
         $delegationDays = $this->getDelegationDays($startDateTime, $endDateTime);
 
-        $amount = 0;
-        $day = 0;
+        $baseAmount = $delegation->allowance->amount;
 
-        foreach ($delegationDays AS $delegationDay) {
-            $day++;
-
-            // when the day (daysNoAllowance) is Saturday and Sundays no allowance
-            if (in_array($delegationDay->getDayOfWeek(), $this->daysNoAllowance)) {
-                continue;
-            }
-
-            // the allowance only when the number of hours is at least 8 (hoursForPayedDays)
-            if ($delegationDay->getHours() >= $this->hoursForPayedDays) {
-                // when the allowance is longer than 7 (daysAfterDoubledAmount) days - for next day allowance amount is doubled
-                $amount += ($day <= $this->daysAfterDoubledAmount ? $baseAmount : $baseAmount * 2);
-            }
-        }
-
-        return $amount;
+        return $this->amountDueCalculator->calculate($baseAmount, $delegationDays);
     }
 }
+

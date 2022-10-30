@@ -3,7 +3,7 @@
 namespace App\ValueObjects;
 
 use DateTime;
-use Dotenv\Exception\ValidationException;
+use Exception;
 
 class DelegationDayValueObject
 {
@@ -17,7 +17,7 @@ class DelegationDayValueObject
     public function __construct(?DateTime $start = null, ?DateTime $end = null)
     {
         if ($start === null && $end === null) {
-            throw new ValidationException('required at least one DateTime');
+            throw new Exception('required at least one DateTime');
         }
 
         if ($start === null) {
@@ -28,7 +28,7 @@ class DelegationDayValueObject
             $end = $this->theNextDayMidnight($start);
         } else {
             if ($end->getTimestamp() > $this->theNextDayMidnight($start)->getTimestamp()) {
-                throw new ValidationException('the end date must be on the same day');
+                throw new Exception('the end date must be on the same day');
             }
         }
 

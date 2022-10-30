@@ -10,7 +10,6 @@ use Illuminate\Http\Response;
 
 class DelegationController extends Controller
 {
-
     protected $iso3166Alpha2;
 
     public function __construct(Iso3166Alpha2 $iso3166Alpha2)
@@ -77,5 +76,4 @@ class DelegationController extends Controller
             return 'Cannot be added when there is another delegation at the time';
         }
     }
-
 }

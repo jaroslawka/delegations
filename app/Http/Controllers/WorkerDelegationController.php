@@ -8,7 +8,10 @@ use Illuminate\Http\Response;
 
 class WorkerDelegationController extends Controller
 {
-
+    /**
+     * Get list of delegations
+     *
+     */
     function index($id, DelegationTransformer $transformer)
     {
         $worker = Worker::find($id);

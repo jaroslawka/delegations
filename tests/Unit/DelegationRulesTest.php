@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Delegation;
 use App\Services\DelegationService;
+use App\Services\Modules\DelegationAmountDueCalculator;
 use Tests\TestCase;
 
 class DelegationRulesTest extends TestCase
@@ -128,13 +129,14 @@ class DelegationRulesTest extends TestCase
     }
 
     /**
-     * A basic unit test example.
+     * Test amount_due calculation for period of time
      *
      * @return void
      */
     public function test_amount_due_callculation()
     {
-        $delegationService = new DelegationService();
+        $delegationDueCalculator = new DelegationAmountDueCalculator();
+        $delegationService = new DelegationService($delegationDueCalculator);
         $delegation = Delegation::factory()->make();
         $periods = $this->getPeriodsWithValidAmount();
 
